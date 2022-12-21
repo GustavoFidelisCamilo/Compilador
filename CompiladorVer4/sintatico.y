@@ -1,11 +1,12 @@
 %{
+#include "lexico.c"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-#include "lexico.c"
 #include "utils.c"
-int contaVar;    
+
+int contaVar;
+
 %}
 
 %token T_PROGRAMA
@@ -17,53 +18,58 @@ int contaVar;
 %token T_ENTAO
 %token T_SENAO
 %token T_FIMSE
-%token T_ENQTO
 %token T_FACA
+%token T_ENQTO
 %token T_FIMENQTO
+%token T_INTEIRO
+%token T_LOGICO
 %token T_MAIS
 %token T_MENOS
 %token T_VEZES
 %token T_DIV
+%token T_ATRIBUI
 %token T_MAIOR
 %token T_MENOR
 %token T_IGUAL
 %token T_E
 %token T_OU
 %token T_NAO
-%token T_ATRIBUICAO
 %token T_ABRE
 %token T_FECHA
-%token T_INTEIRO
-%token T_LOGICO
-%token T_V
-%token T_F
+%token T_V 
+%token T_F 
 %token T_IDENTIF
 %token T_NUMERO
 
-%start programa
+%start programa 
 
+%left T_E T_OU 
+%left T_IGUAL 
+%left T_MAIOR T_MENOR 
+%left T_MAIS T_MENOS 
+%left T_VEZES T_DIV 
 
-%left T_E T_OU
-%left T_IGUAL
-%left T_MAIOR T_MENOR
-%left T_MAIS T_MENOS
-%left T_VEZES T_DIV
 
 %%
+
+
 programa 
-    : cabecalho
-        { contaVar = 0;}
-    variaveis
+    : cabecalho 
+        { contaVar = 0; }
+    variaveis 
         { 
+            mostraTabela();
             empilha(contaVar);
-            if(contaVar){
+            if (contaVar) 
                 fprintf(yyout,"\tAMEM\t%d\n", contaVar); 
-            }
+            
         }
-    T_INICIO lista_comandos T_FIM
-        {
-            int conta = desempilha()
-            fprintf(yyout,"\tDMEM\tx\n\tFIMP\n"); 
+       T_INICIO lista_comandos T_FIM
+        { 
+            int conta = desempilha();
+            if (conta)
+                fprintf(yyout,"\tDMEM\t%d\n", conta); 
+            fprintf(yyout,"\tFIMP\n");
         }
     ;
 
@@ -73,7 +79,7 @@ cabecalho
     ;
 
 variaveis
-    : /* vazio */
+    :
     | declaracao_variaveis
     ;
 
@@ -82,35 +88,36 @@ declaracao_variaveis
     | tipo lista_variaveis
     ;
 
-tipo
+tipo 
     : T_LOGICO
     | T_INTEIRO
     ;
 
 lista_variaveis
-    : lista_variaveis T_IDENTIF
-    { 
-        strcpy(elemTab.id, atomo);
-        elemTab.end = contaVar;
-        insereSimbolo(elemTab);
-        contaVar++;
-    }
-    |T_IDENTIF
-    {   strcpy(elemTab.id, atomo);
-        elemTab.end = contaVar;
-        insereSimbolo(elemTab);
-        contaVar++;;
-    }
+    : lista_variaveis T_IDENTIF 
+        { 
+          strcpy(elemTab.id, atoma);
+          elemTab.end = contaVar;
+          insereSimbolo(elemTab);
+          contaVar++; 
+        }
+    | T_IDENTIF
+        { 
+          strcpy(elemTab.id, atoma);
+          elemTab.end = contaVar;
+          insereSimbolo(elemTab);
+          contaVar++;
+        }
     ;
 
 lista_comandos
-    : /* vazio */
+    :
     | comando lista_comandos
     ;
 
-comando
+comando 
     : entrada_saida
-    | repeticao
+    | repeticao 
     | selecao
     | atribuicao 
     ;
@@ -120,84 +127,84 @@ entrada_saida
     | escrita
     ;
 
-leitura
+
+leitura 
     : T_LEIA T_IDENTIF
+        
         { 
-            int pos = buscaSimbolo(atomo);
+            int pos = buscaSimbolo(atoma);
             fprintf(yyout,"\tLEIA\n\tARZG\t%d\n", tabSimb[pos].end); 
         }
     ;
 
-escrita
-    : T_ESCREVA expressao
+escrita 
+    : T_ESCREVA expressao 
         { fprintf(yyout,"\tESCR\n"); }
     ;
 
-repeticao
+repeticao 
     : T_ENQTO
         { fprintf(yyout,"Lx\tNADA\n"); } 
-    expressao T_FACA
-        { fprintf(yyout,"\tDSVF\tLy\n"); } 
-    lista_comandos 
+    expressao T_FACA  
+        { fprintf(yyout,"\tDSVF\tLy\n"); }
+    lista_comandos
     T_FIMENQTO
         { fprintf(yyout,"\tDSVS\tLx\nLy\tNADA\n"); }
     ;
 
-selecao
-    : T_SE expressao T_ENTAO
-        { fprintf(yyout, "\tDSVF\tLx\n"); } 
-     lista_comandos T_SENAO
-        { fprintf(yyout,"\tDSVS\tLy\nLx\tNADA\n"); } 
-     lista_comandos T_FIMSE
+selecao 
+    : T_SE expressao T_ENTAO 
+        { fprintf(yyout,"\tDSVF\tLx\n"); }
+    lista_comandos T_SENAO 
+        { fprintf(yyout,"\tDSVS\tLy\nLx\tNADA\n"); }
+    lista_comandos T_FIMSE
         { fprintf(yyout,"Ly\tNADA\n"); }
     ;
 
-atribuicao
-    : T_IDENTIF 
+atribuicao 
+    : T_IDENTIF
         {
-            int pos = buscaSimbolo(atomo);
+            int pos = buscaSimbolo(atoma);
             empilha(pos);
-        }
-      T_ATRIBUICAO expressao
-        {
+        } 
+      T_ATRIBUI expressao 
+        { 
             int pos = desempilha();
             fprintf(yyout,"\tARZG\t%d\n", tabSimb[pos].end); 
         }
-    ;
 
-expressao
-    : expressao T_VEZES expressao
+expressao 
+    : expressao T_VEZES expressao 
         { fprintf(yyout,"\tMULT\n"); }
-    | expressao T_DIV expressao
+    | expressao T_DIV expressao 
         { fprintf(yyout,"\tDIVI\n"); }
     | expressao T_MAIS expressao
-        { fprintf(yyout,"\tSOMA\n"); }
+        { fprintf(yyout,"\tSOMA\n"); } 
     | expressao T_MENOS expressao
-        { fprintf(yyout,"\tSUBT\n"); }
+        { fprintf(yyout,"\tSUBT\n"); } 
     | expressao T_MAIOR expressao
-        { fprintf(yyout,"\tCMMA\n"); }
-    | expressao T_MENOR expressao
+        { fprintf(yyout,"\tCMMA\n"); } 
+    | expressao T_MENOR expressao 
         { fprintf(yyout,"\tCMME\n"); }
     | expressao T_IGUAL expressao
-        { fprintf(yyout,"\tCMMIG\n"); }
-    | expressao T_E  expressao
+        { fprintf(yyout,"\tCMMIG\n"); } 
+    | expressao T_E expressao 
         { fprintf(yyout,"\tCONJ\n"); }
     | expressao T_OU expressao
-        { fprintf(yyout,"\tDISJ\n"); }
-    | termo
+        { fprintf(yyout,"\tDISJ\n"); } 
+    | termo 
     ;
 
-termo
+termo 
     : T_IDENTIF
-        {
-            int pos = buscaSimbolo(atomo);
-            fprintf(yyout,"\tCRVG\t%d\n", tabSimb[pos].end);
-        }
+        { 
+            int pos = buscaSimbolo(atoma);
+            fprintf(yyout,"\tCRVG\t%d\n", tabSimb[pos].end); }
     | T_NUMERO
-        { fprintf(yyout,"\tCRCT\t%s\n",atomo); }
-    | T_V
+        { fprintf(yyout,"\tCRCT\t%s\n", atoma); }
+    | T_V 
         { fprintf(yyout,"\tCRCT\t1\n"); }
-    | T_F
+    | T_F 
         { fprintf(yyout,"\tCRCT\t0\n"); }
     | T_NAO termo
         { fprintf(yyout,"\tNEGA\n"); }
@@ -206,10 +213,11 @@ termo
 
 %%
 
-int main(int argc, char *argv[]){
+
+int main (int argc, char *argv[]) {
     char *p, nameIn[100], nameOut[100];
     argv++;
-    if (argc < 2){
+    if (argc < 2) {
         puts("\nCompilador Simples");
         puts("\n\tUso: ./simples <NOME>[.simples]\n\n");
         exit(10);
@@ -221,11 +229,11 @@ int main(int argc, char *argv[]){
     strcpy(nameOut, argv[0]);
     strcat(nameOut, ".mvs");
     yyin = fopen (nameIn, "rt");
-    if (!yyin){
+    if (!yyin) {
         puts("Programa fonte não encontrado!");
         exit(20);
     }
-    yyout = fopen (nameOut, "wt");
+    yyout = fopen(nameOut, "wt");
     yyparse();
     puts("Programa ok!");
 }

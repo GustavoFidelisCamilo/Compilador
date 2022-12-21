@@ -51,7 +51,7 @@ Grammar
 
    29 $@7: %empty
 
-   30 atribuicao: T_IDENTIF $@7 T_ATRIBUICAO expressao
+   30 atribuicao: T_IDENTIF $@7 T_ATRIBUI expressao
 
    31 expressao: expressao T_VEZES expressao
    32          | expressao T_DIV expressao
@@ -85,24 +85,24 @@ Terminals, with rules where they appear
     T_ENTAO (264) 28
     T_SENAO (265) 28
     T_FIMSE (266) 28
-    T_ENQTO (267) 25
-    T_FACA (268) 25
+    T_FACA (267) 25
+    T_ENQTO (268) 25
     T_FIMENQTO (269) 25
-    T_MAIS (270) 33
-    T_MENOS (271) 34
-    T_VEZES (272) 31
-    T_DIV (273) 32
-    T_MAIOR (274) 35
-    T_MENOR (275) 36
-    T_IGUAL (276) 37
-    T_E (277) 38
-    T_OU (278) 39
-    T_NAO (279) 45
-    T_ATRIBUICAO (280) 30
-    T_ABRE (281) 46
-    T_FECHA (282) 46
-    T_INTEIRO (283) 10
-    T_LOGICO (284) 9
+    T_INTEIRO (270) 10
+    T_LOGICO (271) 9
+    T_MAIS (272) 33
+    T_MENOS (273) 34
+    T_VEZES (274) 31
+    T_DIV (275) 32
+    T_ATRIBUI (276) 30
+    T_MAIOR (277) 35
+    T_MENOR (278) 36
+    T_IGUAL (279) 37
+    T_E (280) 38
+    T_OU (281) 39
+    T_NAO (282) 45
+    T_ABRE (283) 46
+    T_FECHA (284) 46
     T_V (285) 43
     T_F (286) 44
     T_IDENTIF (287) 4 11 12 21 30 41
@@ -399,7 +399,7 @@ State 21
 
 State 22
 
-   30 atribuicao: T_IDENTIF . $@7 T_ATRIBUICAO expressao
+   30 atribuicao: T_IDENTIF . $@7 T_ATRIBUI expressao
 
     $default  reduce using rule 29 ($@7)
 
@@ -616,9 +616,9 @@ State 41
 
 State 42
 
-   30 atribuicao: T_IDENTIF $@7 . T_ATRIBUICAO expressao
+   30 atribuicao: T_IDENTIF $@7 . T_ATRIBUI expressao
 
-    T_ATRIBUICAO  shift, and go to state 58
+    T_ATRIBUI  shift, and go to state 58
 
 
 State 43
@@ -838,7 +838,7 @@ State 57
 
 State 58
 
-   30 atribuicao: T_IDENTIF $@7 T_ATRIBUICAO . expressao
+   30 atribuicao: T_IDENTIF $@7 T_ATRIBUI . expressao
 
     T_NAO      shift, and go to state 32
     T_ABRE     shift, and go to state 33
@@ -1074,7 +1074,7 @@ State 70
 
 State 71
 
-   30 atribuicao: T_IDENTIF $@7 T_ATRIBUICAO expressao .
+   30 atribuicao: T_IDENTIF $@7 T_ATRIBUI expressao .
    31 expressao: expressao . T_VEZES expressao
    32          | expressao . T_DIV expressao
    33          | expressao . T_MAIS expressao
