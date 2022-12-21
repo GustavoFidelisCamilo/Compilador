@@ -6,6 +6,7 @@
 #include "utils.c"
 
 int contaVar;
+int rotulo = 1; //marca lugares do codigo
 
 %}
 
@@ -144,21 +145,43 @@ escrita
 
 repeticao 
     : T_ENQTO
-        { fprintf(yyout,"Lx\tNADA\n"); } 
+        {
+
+            fprintf(yyout,"L%d\tNADA\n", ++rotulo);
+            empilha(rotulo); 
+        } 
     expressao T_FACA  
-        { fprintf(yyout,"\tDSVF\tLy\n"); }
+        { 
+            fprintf(yyout,"\tDSVF\tL%d\n", ++rotulo); 
+            empilha(rotulo);
+        }
     lista_comandos
     T_FIMENQTO
-        { fprintf(yyout,"\tDSVS\tLx\nLy\tNADA\n"); }
+        {
+            int rot1 = desempilha();
+            int rot2 = desempilha();
+            fprintf(yyout,"\tDSVS\tL%d\nL%d\tNADA\n", rot2,rot1); 
+        }
     ;
 
 selecao 
     : T_SE expressao T_ENTAO 
-        { fprintf(yyout,"\tDSVF\tLx\n"); }
+        {
+            fprintf(yyout,"\tDSVF\tL%d\n", ++rotulo);
+            empilha(rotulo);
+        }
     lista_comandos T_SENAO 
-        { fprintf(yyout,"\tDSVS\tLy\nLx\tNADA\n"); }
+        {
+            int rot = desempilha();
+            fprintf(yyout,"\tDSVS\tL%d\n", ++rotulo);
+            fprintf(yyout,"L%d\tNADA\n",rot);
+            empilha(rotulo);
+        }
     lista_comandos T_FIMSE
-        { fprintf(yyout,"Ly\tNADA\n"); }
+        {
+            int rot = desempilha();
+            fprintf(yyout,"L%d\tNADA\n", rot); 
+        }
     ;
 
 atribuicao 
